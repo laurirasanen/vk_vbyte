@@ -1,0 +1,15 @@
+﻿---
+AllowShortIfStatementsOnASingleLine: WithoutElse
+BasedOnStyle: Microsoft
+BinPackArguments: 'false'
+BinPackParameters: 'false'
+BreakBeforeBraces: Allman
+Cpp11BracedListStyle: 'false'
+IndentWidth: '4'
+Language: Cpp
+SpacesInParentheses: 'true'
+Standard: Cpp11
+TabWidth: '4'
+UseTab: Never
+
+...

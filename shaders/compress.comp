@@ -1,0 +1,55 @@
+/*
+* Modified implementation of VByte compression.
+* Returns uncompressed value if compression would require 4 or more bytes.
+*/
+
+#version 450
+
+layout(binding = 0) buffer Data
+{
+	uint values[];
+};
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout (constant_id = 0) const uint BUFFER_ELEMENTS = 32;
+
+uint compress(uint value)
+{
+	if (value < (1u << 7)) 
+	{
+		return value & 0x7Fu;
+	}
+
+	uint b0;
+	uint b1;	
+	
+	if (value < (1u << 14))
+	{
+		b0 = (value & 0x7Fu) | (1u << 7);
+		b1 = (value >> 7);
+		return b0 + (b1 << 8);
+	}
+
+	uint b2;
+
+	if (value < (1u << 21))
+	{
+		b0 = (value & 0x7Fu) | (1u << 7);
+		b1 = ((value >> 7) & 0x7Fu) | (1u << 7);
+		b2 = (value >> 14);
+		return b0 + (b1 << 8) + (b2 << 16);
+	}
+
+	// Using 4 or more bytes would result in no compression,
+	// and we can't fit 5 into 32-bit uint.
+	return value;
+}
+
+void main()
+{
+	uint index = gl_GlobalInvocationID.x;
+	if (index >= BUFFER_ELEMENTS)
+		return;
+	values[index] = compress(values[index]);
+}
